@@ -1,17 +1,64 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Search, Mail, Phone, MapPin, Users } from "lucide-react"
-import { mockClients } from "@/lib/mock-data"
+import { Plus, Search, Mail, Phone, MapPin, Users, Pencil, Trash2 } from "lucide-react"
+import { useClientStore } from "@/stores/client-store"
 import { formatDate } from "@/lib/utils/formatters"
+import ClientModal from "@/components/clients/ClientModal"
+import { Client } from "@/types"
+import ConfirmModal from "@/components/ui/ConfirmModal"
 
 export default function ClientsPage() {
-  const [search, setSearch] = useState("")
+  const clients = useClientStore((state) => state.clients)
+  const addClient = useClientStore((state) => state.addClient)
+  const updateClient = useClientStore((state) => state.updateClient)
+  const deleteClient = useClientStore((state) => state.deleteClient)
 
-  const filtered = mockClients.filter((client) =>
+  const [search, setSearch] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingClient, setEditingClient] = useState<Client | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+const [targetId, setTargetId] = useState<string | null>(null)
+
+  const filtered = clients.filter((client) =>
     client.name.toLowerCase().includes(search.toLowerCase()) ||
     client.email.toLowerCase().includes(search.toLowerCase())
   )
+
+  const handleSave = (data: Omit<Client, "id" | "createdAt">) => {
+    if (editingClient) {
+      updateClient(editingClient.id, data)
+    } else {
+      addClient(data)
+    }
+    setEditingClient(null)
+  }
+
+  const handleEdit = (client: Client) => {
+    setEditingClient(client)
+    setIsModalOpen(true)
+  }
+
+  const handleDelete = (id: string) => {
+    if (confirm("Supprimer ce client ?")) {
+      deleteClient(id)
+    }
+  }
+
+  const handleOpenModal = () => {
+    setEditingClient(null)
+    setIsModalOpen(true)
+  }
+
+  const handleDeleteClick = (id: string) => {
+  setTargetId(id)
+  setConfirmOpen(true)
+}
+
+const handleConfirmDelete = () => {
+  if (targetId) deleteClient(targetId)
+  setTargetId(null)
+}
 
   return (
     <div className="p-8">
@@ -21,10 +68,13 @@ export default function ClientsPage() {
         <div>
           <h1 className="text-xl font-semibold text-zinc-900">Clients</h1>
           <p className="mt-0.5 text-sm text-zinc-500">
-            {mockClients.length} clients enregistrés
+            {clients.length} clients enregistrés
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 transition-colors">
+        <button
+          onClick={handleOpenModal}
+          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
+        >
           <Plus className="h-4 w-4" />
           Nouveau client
         </button>
@@ -78,34 +128,65 @@ export default function ClientsPage() {
                 <div className="flex items-center gap-2">
                   <Mail className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400" />
                   <span className="truncate text-xs text-zinc-500">
-                    {client.email}
+                    {client.email || "—"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400" />
-                  <span className="text-xs text-zinc-500">{client.phone}</span>
+                  <span className="text-xs text-zinc-500">
+                    {client.phone || "—"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-zinc-400" />
                   <span className="truncate text-xs text-zinc-500">
-                    {client.address}
+                    {client.address || "—"}
                   </span>
                 </div>
               </div>
 
               {/* Actions */}
               <div className="mt-4 flex items-center gap-2 border-t border-zinc-100 pt-4">
-                <button className="flex-1 rounded-lg border border-zinc-200 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 transition-colors">
-                  Voir les factures
-                </button>
-                <button className="flex-1 rounded-lg border border-zinc-200 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 transition-colors">
+                <button
+                  onClick={() => handleEdit(client)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 transition-colors"
+                >
+                  <Pencil className="h-3 w-3" />
                   Modifier
                 </button>
+                <button
+  onClick={() => handleDeleteClick(client.id)}
+  className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-red-100 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+>
+  <Trash2 className="h-3 w-3" />
+  Supprimer
+</button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Modal */}
+      <ClientModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setEditingClient(null)
+        }}
+        onSave={handleSave}
+        client={editingClient}
+      />
+
+      <ConfirmModal
+  isOpen={confirmOpen}
+  onClose={() => setConfirmOpen(false)}
+  onConfirm={handleConfirmDelete}
+  title="Supprimer le client ?"
+  description="Cette action est irréversible. Le client sera définitivement supprimé."
+  confirmLabel="Supprimer"
+  danger
+/>
     </div>
   )
 }
