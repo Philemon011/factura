@@ -25,6 +25,158 @@ const defaultItem = (): LineItem => ({
   amount: 0,
 })
 
+function A4Preview({
+  invoiceNumber,
+  selectedClient,
+  issueDate,
+  dueDate,
+  items,
+  subtotal,
+  taxAmount,
+  hasDiscount,
+  discount,
+  total,
+  notes,
+}: {
+  invoiceNumber: string
+  selectedClient: { name: string; email: string; address: string } | undefined
+  issueDate: string
+  dueDate: string
+  items: LineItem[]
+  subtotal: number
+  taxAmount: number
+  hasDiscount: boolean
+  discount: number
+  total: number
+  notes: string
+}) {
+  return (
+    <div>
+      {/* Label */}
+      <div className="mb-2 flex items-center justify-center gap-2">
+        <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-400">
+          Aperçu A4
+        </span>
+        <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+
+      {/* Feuille A4 */}
+      <div
+        className="relative mx-auto bg-white shadow-[0_2px_16px_rgba(0,0,0,0.10)]"
+        style={{ width: "100%", aspectRatio: "210/297", padding: "32px" }}
+      >
+        {/* Bande décorative */}
+        <div className="mb-6 h-1 w-full rounded-full bg-zinc-900" />
+
+        {/* En-tête */}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h3 className="text-xl font-bold tracking-tight text-zinc-900">FACTURE</h3>
+            <p className="mt-0.5 text-[10px] text-zinc-400">N° {invoiceNumber}</p>
+          </div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900">
+            <span className="text-xs font-bold text-white">F</span>
+          </div>
+        </div>
+
+        {/* Infos */}
+        {selectedClient ? (
+          <div className="mb-5 grid grid-cols-2 gap-4 text-[10px]">
+            <div>
+              <p className="mb-1 font-semibold uppercase tracking-widest text-zinc-400">Émetteur</p>
+              <p className="font-semibold text-zinc-800">MonEntreprise SARL</p>
+              <p className="text-zinc-500">contact@monentreprise.bj</p>
+              <p className="text-zinc-500">Cotonou, Bénin</p>
+            </div>
+            <div>
+              <p className="mb-1 font-semibold uppercase tracking-widest text-zinc-400">Client</p>
+              <p className="font-semibold text-zinc-800">{selectedClient.name}</p>
+              <p className="text-zinc-500">{selectedClient.email}</p>
+              <p className="text-zinc-500">{selectedClient.address}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-5 rounded-lg bg-zinc-50 px-3 py-2 text-[10px] text-zinc-400">
+            Sélectionnez un client pour voir l'aperçu complet
+          </div>
+        )}
+
+        {/* Dates */}
+        <div className="mb-5 grid grid-cols-2 gap-4 text-[10px]">
+          <div>
+            <p className="text-zinc-400">Date d'émission</p>
+            <p className="font-semibold text-zinc-800">{formatDate(issueDate)}</p>
+          </div>
+          <div>
+            <p className="text-zinc-400">Échéance</p>
+            <p className="font-semibold text-zinc-800">{formatDate(dueDate)}</p>
+          </div>
+        </div>
+
+        {/* Articles */}
+        <table className="mb-4 w-full text-[10px]">
+          <thead>
+            <tr className="border-b border-zinc-200 bg-zinc-50">
+              <th className="py-1.5 pl-2 text-left font-semibold text-zinc-500">Article</th>
+              <th className="py-1.5 text-center font-semibold text-zinc-500">Qté</th>
+              <th className="py-1.5 pr-2 text-right font-semibold text-zinc-500">Montant HT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item.id} className="border-b border-zinc-100">
+                <td className="py-1.5 pl-2 text-zinc-700">{item.name || "—"}</td>
+                <td className="py-1.5 text-center text-zinc-500">{item.quantity}</td>
+                <td className="py-1.5 pr-2 text-right font-medium text-zinc-800">
+                  {formatCFA(item.quantity * item.unitPrice)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Totaux */}
+        <div className="ml-auto w-48 space-y-1 text-[10px]">
+          <div className="flex justify-between text-zinc-500">
+            <span>Sous-total HT</span>
+            <span>{formatCFA(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-zinc-500">
+            <span>TVA (18%)</span>
+            <span>{formatCFA(taxAmount)}</span>
+          </div>
+          {hasDiscount && discount > 0 && (
+            <div className="flex justify-between text-red-500">
+              <span>Remise</span>
+              <span>- {formatCFA(discount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between border-t border-zinc-200 pt-1.5 text-xs font-bold text-zinc-900">
+            <span>Total TTC</span>
+            <span>{formatCFA(total)}</span>
+          </div>
+        </div>
+
+        {/* Notes */}
+        {notes && (
+          <div className="mt-4 rounded bg-zinc-50 px-3 py-2">
+            <p className="text-[9px] text-zinc-400">{notes}</p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="absolute bottom-6 left-8 right-8">
+          <div className="h-px w-full bg-zinc-100" />
+          <p className="mt-2 text-center text-[8px] text-zinc-300">
+            Factura Africa — {invoiceNumber}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function NewInvoicePage() {
   const router = useRouter()
   const addInvoice = useInvoiceStore((state) => state.addInvoice)
@@ -124,8 +276,8 @@ export default function NewInvoicePage() {
               className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 sm:px-3 sm:py-2 sm:text-sm"
             >
               {showPreview
-                ? <><EyeOff className="h-3.5 w-3.5" /><span className="hidden sm:inline">Masquer</span></>
-                : <><Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">Aperçu</span></>
+                ? <><EyeOff className="h-3.5 w-3.5" /><span className="hidden sm:inline ml-1">Masquer</span></>
+                : <><Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline ml-1">Aperçu</span></>
               }
             </button>
             <button
@@ -276,162 +428,76 @@ export default function NewInvoicePage() {
           </div>
         </motion.div>
 
-        {/* Aperçu A4 droite */}
-        <AnimatePresence>
-          {showPreview && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.25 }}
-              className="hidden overflow-y-auto lg:block lg:w-[440px] lg:flex-shrink-0"
-            >
-              {/* Label A4 */}
-              <div className="mb-2 flex items-center justify-center gap-2">
-                <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-                <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-400">
-                  Aperçu A4
-                </span>
-                <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-              </div>
+        {/* Aperçu A4 — desktop sidebar */}
+<AnimatePresence>
+  {showPreview && (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.25 }}
+      className="hidden overflow-y-auto lg:block lg:w-[440px] lg:flex-shrink-0"
+    >
+      <A4Preview
+        invoiceNumber={invoiceNumber}
+        selectedClient={selectedClient}
+        issueDate={issueDate}
+        dueDate={dueDate}
+        items={items}
+        subtotal={subtotal}
+        taxAmount={taxAmount}
+        hasDiscount={hasDiscount}
+        discount={discount}
+        total={total}
+        notes={notes}
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
 
-              {/* Feuille A4 simulée */}
-              <div
-                className="relative mx-auto bg-white shadow-[0_2px_16px_rgba(0,0,0,0.10)]"
-                style={{
-                  width: "100%",
-                  aspectRatio: "210/297",
-                  padding: "32px",
-                }}
-              >
-                {/* Ligne de bord supérieure décorative */}
-                <div className="mb-6 h-1 w-full rounded-full bg-zinc-900" />
-
-                {/* En-tête facture */}
-                <div className="mb-6 flex items-start justify-between">
-                  <div>
-                    <h3 className="text-xl font-bold tracking-tight text-zinc-900">
-                      FACTURE
-                    </h3>
-                    <p className="mt-0.5 text-[10px] text-zinc-400">
-                      N° {invoiceNumber}
-                    </p>
-                  </div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900">
-                    <span className="text-xs font-bold text-white">F</span>
-                  </div>
-                </div>
-
-                {/* Infos client */}
-                {selectedClient ? (
-                  <div className="mb-5 grid grid-cols-2 gap-4 text-[10px]">
-                    <div>
-                      <p className="mb-1 font-semibold uppercase tracking-widest text-zinc-400">
-                        Émetteur
-                      </p>
-                      <p className="font-semibold text-zinc-800">MonEntreprise SARL</p>
-                      <p className="text-zinc-500">contact@monentreprise.bj</p>
-                      <p className="text-zinc-500">Cotonou, Bénin</p>
-                    </div>
-                    <div>
-                      <p className="mb-1 font-semibold uppercase tracking-widest text-zinc-400">
-                        Client
-                      </p>
-                      <p className="font-semibold text-zinc-800">{selectedClient.name}</p>
-                      <p className="text-zinc-500">{selectedClient.email}</p>
-                      <p className="text-zinc-500">{selectedClient.address}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mb-5 rounded-lg bg-zinc-50 px-3 py-2 text-[10px] text-zinc-400">
-                    Sélectionnez un client pour voir l'aperçu complet
-                  </div>
-                )}
-
-                {/* Dates */}
-                <div className="mb-5 grid grid-cols-2 gap-4 text-[10px]">
-                  <div>
-                    <p className="text-zinc-400">Date d'émission</p>
-                    <p className="font-semibold text-zinc-800">{formatDate(issueDate)}</p>
-                  </div>
-                  <div>
-                    <p className="text-zinc-400">Échéance</p>
-                    <p className="font-semibold text-zinc-800">{formatDate(dueDate)}</p>
-                  </div>
-                </div>
-
-                {/* Tableau articles */}
-                <table className="mb-4 w-full text-[10px]">
-                  <thead>
-                    <tr className="border-b border-zinc-200 bg-zinc-50">
-                      <th className="py-1.5 pl-2 text-left font-semibold text-zinc-500">
-                        Article
-                      </th>
-                      <th className="py-1.5 text-center font-semibold text-zinc-500">
-                        Qté
-                      </th>
-                      <th className="py-1.5 pr-2 text-right font-semibold text-zinc-500">
-                        Montant HT
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item) => (
-                      <tr key={item.id} className="border-b border-zinc-100">
-                        <td className="py-1.5 pl-2 text-zinc-700">
-                          {item.name || "—"}
-                        </td>
-                        <td className="py-1.5 text-center text-zinc-500">
-                          {item.quantity}
-                        </td>
-                        <td className="py-1.5 pr-2 text-right font-medium text-zinc-800">
-                          {formatCFA(item.quantity * item.unitPrice)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Totaux */}
-                <div className="ml-auto w-48 space-y-1 text-[10px]">
-                  <div className="flex justify-between text-zinc-500">
-                    <span>Sous-total HT</span>
-                    <span>{formatCFA(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-zinc-500">
-                    <span>TVA (18%)</span>
-                    <span>{formatCFA(taxAmount)}</span>
-                  </div>
-                  {hasDiscount && discount > 0 && (
-                    <div className="flex justify-between text-red-500">
-                      <span>Remise</span>
-                      <span>- {formatCFA(discount)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t border-zinc-200 pt-1.5 text-xs font-bold text-zinc-900">
-                    <span>Total TTC</span>
-                    <span>{formatCFA(total)}</span>
-                  </div>
-                </div>
-
-                {/* Notes */}
-                {notes && (
-                  <div className="mt-4 rounded bg-zinc-50 px-3 py-2">
-                    <p className="text-[9px] text-zinc-400">{notes}</p>
-                  </div>
-                )}
-
-                {/* Footer A4 */}
-                <div className="absolute bottom-6 left-8 right-8">
-                  <div className="h-px w-full bg-zinc-100" />
-                  <p className="mt-2 text-center text-[8px] text-zinc-300">
-                    Factura Africa — {invoiceNumber}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+{/* Aperçu A4 — modale mobile */}
+<AnimatePresence>
+  {showPreview && (
+    <div className="fixed inset-0 z-50 flex flex-col bg-zinc-100 dark:bg-zinc-950 lg:hidden">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.25 }}
+        className="flex flex-col h-full"
+      >
+        {/* Header modale */}
+        <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Aperçu A4
+          </span>
+          <button
+            onClick={() => setShowPreview(false)}
+            className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+          >
+            <EyeOff className="h-4 w-4" />
+          </button>
+        </div>
+        {/* Contenu scrollable */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <A4Preview
+            invoiceNumber={invoiceNumber}
+            selectedClient={selectedClient}
+            issueDate={issueDate}
+            dueDate={dueDate}
+            items={items}
+            subtotal={subtotal}
+            taxAmount={taxAmount}
+            hasDiscount={hasDiscount}
+            discount={discount}
+            total={total}
+            notes={notes}
+          />
+        </div>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
       </div>
     </div>
   )

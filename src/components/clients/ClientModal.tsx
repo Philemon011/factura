@@ -56,33 +56,39 @@ export default function ClientModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+
           {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {/* Modal — slide up sur mobile, scale sur desktop */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative z-10 w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-lg"
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="relative z-10 w-full rounded-t-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:max-w-md sm:rounded-xl sm:p-6"
           >
+            {/* Poignée mobile */}
+            <div className="mb-4 flex justify-center sm:hidden">
+              <div className="h-1 w-10 rounded-full bg-zinc-200 dark:bg-zinc-700" />
+            </div>
+
             {/* Header */}
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-zinc-900">
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {client ? "Modifier le client" : "Nouveau client"}
               </h2>
               <button
                 onClick={onClose}
-                className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors"
+                className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -91,7 +97,7 @@ export default function ClientModal({
             {/* Formulaire */}
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   Nom *
                 </label>
                 <input
@@ -99,12 +105,12 @@ export default function ClientModal({
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
                   placeholder="ex: Agence Cansaas"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-800 outline-none focus:border-zinc-400 transition-colors"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:placeholder:text-zinc-600 dark:focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   Email
                 </label>
                 <input
@@ -112,12 +118,12 @@ export default function ClientModal({
                   value={form.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   placeholder="ex: contact@agence.bj"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-800 outline-none focus:border-zinc-400 transition-colors"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:placeholder:text-zinc-600 dark:focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   Téléphone
                 </label>
                 <input
@@ -125,12 +131,12 @@ export default function ClientModal({
                   value={form.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
                   placeholder="ex: +229 97 00 00 00"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-800 outline-none focus:border-zinc-400 transition-colors"
+                  className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:placeholder:text-zinc-600 dark:focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-zinc-500">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   Adresse
                 </label>
                 <textarea
@@ -138,7 +144,7 @@ export default function ClientModal({
                   onChange={(e) => handleChange("address", e.target.value)}
                   placeholder="ex: Cotonou, Rue des Palmiers"
                   rows={2}
-                  className="w-full resize-none rounded-lg border border-zinc-200 px-3 py-2.5 text-sm text-zinc-800 outline-none focus:border-zinc-400 transition-colors"
+                  className="w-full resize-none rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:placeholder:text-zinc-600 dark:focus:border-zinc-500"
                 />
               </div>
             </div>
@@ -147,13 +153,13 @@ export default function ClientModal({
             <div className="mt-6 flex items-center justify-end gap-3">
               <button
                 onClick={onClose}
-                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50 transition-colors"
+                className="rounded-lg border border-zinc-200 px-4 py-2 text-sm text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
               >
                 Annuler
               </button>
               <button
                 onClick={handleSave}
-                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
+                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
               >
                 {client ? "Enregistrer" : "Ajouter"}
               </button>
