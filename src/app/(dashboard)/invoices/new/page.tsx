@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus, ChevronLeft, Send, Save, Eye, EyeOff } from "lucide-react"
 import { LineItem } from "@/types"
-import { useInvoiceStore } from "@/stores/invoice-store"
-import { useClientStore } from "@/stores/client-store"
+import { addInvoice, getInvoices } from "@/actions/invoices"
+import { getClients } from "@/actions/clients"
 import { generateInvoiceNumber, formatCFA, formatDate } from "@/lib/utils/formatters"
 import LineItemRow from "@/components/invoices/LineItemRow"
 import InvoiceSummary from "@/components/invoices/InvoiceSummary"
@@ -179,24 +179,29 @@ function A4Preview({
 
 export default function NewInvoicePage() {
   const router = useRouter()
-  const addInvoice = useInvoiceStore((state) => state.addInvoice)
-  const invoices = useInvoiceStore((state) => state.invoices)
-  const clients = useClientStore((state) => state.clients)
-
-  const invoiceNumber = generateInvoiceNumber(invoices.length)
-  const today = new Date().toISOString().split("T")[0]
-  const defaultDue = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0]
+  const [clients, setClients] = useState<any[]>([])
+  const [invoiceCount, setInvoiceCount] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   const [clientId, setClientId] = useState("")
-  const [issueDate, setIssueDate] = useState(today)
-  const [dueDate, setDueDate] = useState(defaultDue)
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split("T")[0]
+  )
+  const [dueDate, setDueDate] = useState(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+  )
   const [items, setItems] = useState<LineItem[]>([defaultItem()])
   const [hasDiscount, setHasDiscount] = useState(false)
   const [discount, setDiscount] = useState(0)
   const [notes, setNotes] = useState("")
   const [showPreview, setShowPreview] = useState(true)
+
+  useEffect(() => {
+    getClients().then(setClients)
+    getInvoices().then((invs) => setInvoiceCount(invs.length))
+  }, [])
+
+  const invoiceNumber = generateInvoiceNumber(invoiceCount)
 
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
   const taxAmount = items.reduce((sum, item) => {
@@ -218,7 +223,7 @@ export default function NewInvoicePage() {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const handleSubmit = (status: "draft" | "sent") => {
+  const handleSubmit = async (status: "draft" | "sent") => {
     if (!clientId) {
       alert("Veuillez sélectionner un client")
       return
@@ -227,22 +232,32 @@ export default function NewInvoicePage() {
       alert("Veuillez remplir le nom de tous les articles")
       return
     }
-    addInvoice({
-      status,
-      clientId,
-      clientName: selectedClient?.name || "",
-      issueDate,
-      dueDate,
-      items,
-      subtotal,
-      taxAmount,
-      discount: hasDiscount ? discount : 0,
-      total,
-      notes,
-    })
-    router.push("/invoices")
+    setLoading(true)
+    try {
+      await addInvoice(
+        {
+          status,
+          clientId,
+          clientName: selectedClient?.name || "",
+          issueDate,
+          dueDate,
+          items,
+          subtotal,
+          taxAmount,
+          discount: hasDiscount ? discount : 0,
+          total,
+          notes,
+        },
+        invoiceCount
+      )
+      router.push("/invoices")
+    } catch (error) {
+      console.error(error)
+      alert("Erreur lors de la création de la facture")
+    } finally {
+      setLoading(false)
+    }
   }
-
   return (
     <div className="flex h-screen flex-col bg-zinc-50 pt-14 dark:bg-zinc-950 sm:pt-0">
 
@@ -281,19 +296,25 @@ export default function NewInvoicePage() {
               }
             </button>
             <button
-              onClick={() => handleSubmit("draft")}
-              className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 sm:px-3 sm:py-2 sm:text-sm"
-            >
-              <Save className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Brouillon</span>
-            </button>
-            <button
-              onClick={() => handleSubmit("sent")}
-              className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              <Send className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Envoyer</span>
-            </button>
+  onClick={() => handleSubmit("draft")}
+  disabled={loading}
+  className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-xs text-zinc-600 transition-colors hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 sm:px-3 sm:py-2 sm:text-sm"
+>
+  <Save className="h-3.5 w-3.5" />
+  <span className="hidden sm:inline">
+    {loading ? "Enregistrement..." : "Brouillon"}
+  </span>
+</button>
+<button
+  onClick={() => handleSubmit("sent")}
+  disabled={loading}
+  className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300 sm:px-4 sm:py-2 sm:text-sm"
+>
+  <Send className="h-3.5 w-3.5" />
+  <span className="hidden sm:inline">
+    {loading ? "Envoi..." : "Envoyer"}
+  </span>
+</button>
           </div>
         </div>
       </motion.div>
