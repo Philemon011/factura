@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import { FileText, CircleCheck, Clock, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import InvoiceStatusBadge from "@/components/invoices/InvoiceStatusBadge"
+import RevenueChart from "@/components/dashboard/RevenueChart"
+import StatusChart from "@/components/dashboard/StatusChart"
 import { formatCFA, formatDate } from "@/lib/utils/formatters"
 import { Invoice, DashboardStats } from "@/types"
 
@@ -20,16 +22,23 @@ const cardVariants = {
   }),
 }
 
+interface ChartData {
+  monthlyData: { month: string; facturé: number; payé: number }[]
+  statusData: { name: string; value: number; color: string }[]
+}
+
 export default function DashboardClient({
   stats,
   invoices,
+  chartData,
 }: {
   stats: DashboardStats
   invoices: Invoice[]
+  chartData: ChartData
 }) {
   const recentInvoices = [...invoices]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 4)
+    .slice(0, 5)
 
   const cards = [
     {
@@ -112,6 +121,48 @@ export default function DashboardClient({
             )}
           </motion.div>
         ))}
+      </div>
+
+      {/* Graphiques */}
+      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+
+        {/* Revenus mensuels — 2/3 */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                Revenus mensuels
+              </h2>
+              <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+                6 derniers mois — facturé vs payé
+              </p>
+            </div>
+          </div>
+          <RevenueChart data={chartData.monthlyData} />
+        </motion.div>
+
+        {/* Répartition statuts — 1/3 */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.3 }}
+          className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+        >
+          <div className="mb-4">
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              Répartition
+            </h2>
+            <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">
+              Factures par statut
+            </p>
+          </div>
+          <StatusChart data={chartData.statusData} />
+        </motion.div>
       </div>
 
       {/* Factures récentes */}

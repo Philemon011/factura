@@ -228,3 +228,75 @@ export async function getDashboardStats() {
     }
   }
 }
+
+export async function getChartData() {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { monthlyData: [], statusData: [] }
+
+    const { data, error } = await supabase
+      .from("invoices")
+      .select("status, total, created_at")
+      .eq("user_id", user.id)
+
+    if (error || !data) return { monthlyData: [], statusData: [] }
+
+    // Données mensuelles — 6 derniers mois
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const date = new Date()
+      date.setMonth(date.getMonth() - (5 - i))
+      return {
+        month: date.toLocaleDateString("fr-FR", { month: "short" }),
+        year: date.getFullYear(),
+        monthNum: date.getMonth(),
+        facturé: 0,
+        payé: 0,
+      }
+    })
+
+    data.forEach((inv) => {
+      const invDate = new Date(inv.created_at)
+      const monthIndex = months.findIndex(
+        (m) =>
+          m.monthNum === invDate.getMonth() &&
+          m.year === invDate.getFullYear()
+      )
+      if (monthIndex !== -1) {
+        months[monthIndex].facturé += inv.total
+        if (inv.status === "paid") {
+          months[monthIndex].payé += inv.total
+        }
+      }
+    })
+
+    const monthlyData = months.map((m) => ({
+      month: m.month,
+      facturé: m.facturé,
+      payé: m.payé,
+    }))
+
+    // Données par statut
+    const statusCounts = {
+      draft: 0,
+      sent: 0,
+      paid: 0,
+      overdue: 0,
+    }
+
+    data.forEach((inv) => {
+      statusCounts[inv.status as keyof typeof statusCounts]++
+    })
+
+    const statusData = [
+      { name: "Brouillon", value: statusCounts.draft, color: "#a1a1aa" },
+      { name: "Envoyée", value: statusCounts.sent, color: "#3b82f6" },
+      { name: "Payée", value: statusCounts.paid, color: "#22c55e" },
+      { name: "En retard", value: statusCounts.overdue, color: "#ef4444" },
+    ].filter((s) => s.value > 0)
+
+    return { monthlyData, statusData }
+  } catch {
+    return { monthlyData: [], statusData: [] }
+  }
+}
