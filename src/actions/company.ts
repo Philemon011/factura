@@ -4,10 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Company } from "@/types"
 
 export async function getCompany(): Promise<Company> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return {
+  const defaultCompany: Company = {
     name: "",
     email: "",
     phone: "",
@@ -16,28 +13,29 @@ export async function getCompany(): Promise<Company> {
     taxId: "",
   }
 
-  const { data, error } = await supabase
-    .from("company")
-    .select("*")
-    .eq("user_id", user.id)
-    .single()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return defaultCompany
 
-  if (error || !data) return {
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    logoUrl: null,
-    taxId: "",
-  }
+    const { data, error } = await supabase
+      .from("company")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle()
 
-  return {
-    name: data.name,
-    email: data.email || "",
-    phone: data.phone || "",
-    address: data.address || "",
-    logoUrl: data.logo_url || null,
-    taxId: data.tax_id || "",
+    if (error || !data) return defaultCompany
+
+    return {
+      name: data.name || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      address: data.address || "",
+      logoUrl: data.logo_url || null,
+      taxId: data.tax_id || "",
+    }
+  } catch {
+    return defaultCompany
   }
 }
 

@@ -187,30 +187,44 @@ export async function deleteInvoice(id: string): Promise<void> {
 }
 
 export async function getDashboardStats() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return {
-    totalInvoices: 0,
-    totalBilled: 0,
-    totalPaid: 0,
-    totalPending: 0,
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return {
+      totalInvoices: 0,
+      totalBilled: 0,
+      totalPaid: 0,
+      totalPending: 0,
+    }
+
+    const { data, error } = await supabase
+      .from("invoices")
+      .select("status, total")
+      .eq("user_id", user.id)
+
+    if (error || !data) return {
+      totalInvoices: 0,
+      totalBilled: 0,
+      totalPaid: 0,
+      totalPending: 0,
+    }
+
+    const totalInvoices = data.length
+    const totalBilled = data.reduce((sum, inv) => sum + inv.total, 0)
+    const totalPaid = data
+      .filter((inv) => inv.status === "paid")
+      .reduce((sum, inv) => sum + inv.total, 0)
+    const totalPending = data
+      .filter((inv) => inv.status === "sent" || inv.status === "overdue")
+      .reduce((sum, inv) => sum + inv.total, 0)
+
+    return { totalInvoices, totalBilled, totalPaid, totalPending }
+  } catch {
+    return {
+      totalInvoices: 0,
+      totalBilled: 0,
+      totalPaid: 0,
+      totalPending: 0,
+    }
   }
-
-  const { data, error } = await supabase
-    .from("invoices")
-    .select("status, total")
-    .eq("user_id", user.id)
-
-  if (error) throw new Error(error.message)
-
-  const totalInvoices = data.length
-  const totalBilled = data.reduce((sum, inv) => sum + inv.total, 0)
-  const totalPaid = data
-    .filter((inv) => inv.status === "paid")
-    .reduce((sum, inv) => sum + inv.total, 0)
-  const totalPending = data
-    .filter((inv) => inv.status === "sent" || inv.status === "overdue")
-    .reduce((sum, inv) => sum + inv.total, 0)
-
-  return { totalInvoices, totalBilled, totalPaid, totalPending }
 }
