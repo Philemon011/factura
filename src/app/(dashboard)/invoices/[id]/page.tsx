@@ -1,5 +1,6 @@
 import { getInvoice } from "@/actions/invoices"
 import { getClients } from "@/actions/clients"
+import { getCompany } from "@/actions/company"
 import InvoiceDetailClient from "@/components/invoices/InvoiceDetailClient"
 import Link from "next/link"
 
@@ -10,9 +11,10 @@ export default async function InvoiceDetailPage({
 }) {
   const { id } = await params
 
-  const [invoice, clients] = await Promise.all([
+  const [invoice, clients, company] = await Promise.all([
     getInvoice(id),
     getClients(),
+    getCompany(),
   ])
 
   if (!invoice) {
@@ -33,5 +35,11 @@ export default async function InvoiceDetailPage({
 
   const client = clients.find((c) => c.id === invoice.clientId) || null
 
-  return <InvoiceDetailClient invoice={invoice} client={client} />
+  return (
+    <InvoiceDetailClient
+      invoice={invoice}
+      client={client}
+      company={company}
+    />
+  )
 }

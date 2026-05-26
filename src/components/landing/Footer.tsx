@@ -218,7 +218,7 @@ export default function Footer() {
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-zinc-400 dark:text-zinc-600">Fait avec</span>
             <span className="text-red-400">♥</span>
-            <span className="text-xs text-zinc-400 dark:text-zinc-600">en Afrique de l'Ouest</span>
+            <span className="text-xs text-zinc-400 dark:text-zinc-600">par Philémon Etounde</span>
           </div>
         </div>
       </div>

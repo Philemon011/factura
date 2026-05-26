@@ -10,13 +10,17 @@ import { formatCFA, formatDate, getStatusLabel, getStatusClasses } from "@/lib/u
 import { Invoice, Client, InvoiceStatus } from "@/types"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 import { toast } from "sonner"
+import DownloadPDFButton from "@/components/invoices/DownloadPDFButton"
+import { Company } from "@/types"
 
 export default function InvoiceDetailClient({
   invoice: initialInvoice,
   client,
+  company,
 }: {
   invoice: Invoice
   client: Client | null
+  company: Company
 }) {
   const router = useRouter()
   const [invoice, setInvoice] = useState(initialInvoice)
@@ -76,6 +80,11 @@ export default function InvoiceDetailClient({
               <option value="paid">Payée</option>
               <option value="overdue">En retard</option>
             </select>
+            <DownloadPDFButton
+  invoice={invoice}
+  client={client}
+  company={company}
+/>
 
             <button
               onClick={() => setConfirmOpen(true)}
