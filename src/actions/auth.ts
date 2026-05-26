@@ -20,12 +20,19 @@ export async function signUp(formData: {
 
   if (error) throw new Error(error.message)
 
-  if (data.user) {
-    await supabase.from("company").insert({
-      name: formData.companyName,
-      email: formData.email,
-      user_id: data.user.id,
-    })
+  // Attendre que la session soit établie avant de créer la company
+  if (data.user && data.session) {
+    const { error: companyError } = await supabase
+      .from("company")
+      .insert({
+        name: formData.companyName,
+        email: formData.email,
+        user_id: data.user.id,
+      })
+
+    if (companyError) {
+      console.error("Company creation error:", companyError.message)
+    }
   }
 
   redirect("/dashboard")
