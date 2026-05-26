@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils/formatters"
 import ClientModal from "@/components/clients/ClientModal"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 import { Client } from "@/types"
+import { toast } from "sonner"
 
 const cardVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -41,26 +42,26 @@ export default function ClientsClient({
   )
 
   const handleSave = async (data: Omit<Client, "id" | "createdAt">) => {
-    setLoading(true)
-    try {
-      if (editingClient) {
-        await updateClient(editingClient.id, data)
-        setClients((prev) =>
-          prev.map((c) =>
-            c.id === editingClient.id ? { ...c, ...data } : c
-          )
-        )
-      } else {
-        const newClient = await addClient(data)
-        setClients((prev) => [newClient, ...prev])
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-      setEditingClient(null)
+  setLoading(true)
+  try {
+    if (editingClient) {
+      await updateClient(editingClient.id, data)
+      setClients((prev) =>
+        prev.map((c) => c.id === editingClient.id ? { ...c, ...data } : c)
+      )
+      toast.success("Client modifié avec succès")
+    } else {
+      const newClient = await addClient(data)
+      setClients((prev) => [newClient, ...prev])
+      toast.success("Client ajouté avec succès")
     }
+  } catch (error) {
+    toast.error("Une erreur est survenue")
+  } finally {
+    setLoading(false)
+    setEditingClient(null)
   }
+}
 
   const handleEdit = (client: Client) => {
     setEditingClient(client)
@@ -73,18 +74,19 @@ export default function ClientsClient({
   }
 
   const handleConfirmDelete = async () => {
-    if (!targetId) return
-    setLoading(true)
-    try {
-      await deleteClient(targetId)
-      setClients((prev) => prev.filter((c) => c.id !== targetId))
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-      setTargetId(null)
-    }
+  if (!targetId) return
+  setLoading(true)
+  try {
+    await deleteClient(targetId)
+    setClients((prev) => prev.filter((c) => c.id !== targetId))
+    toast.success("Client supprimé")
+  } catch (error) {
+    toast.error("Erreur lors de la suppression")
+  } finally {
+    setLoading(false)
+    setTargetId(null)
   }
+}
 
   const handleOpenModal = () => {
     setEditingClient(null)

@@ -88,13 +88,32 @@ export async function addInvoice(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Non authentifié")
 
+  // Compter les factures de CET utilisateur uniquement
+  const { count } = await supabase
+    .from("invoices")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
   const year = new Date().getFullYear()
-  const number = `FAC-${year}-${String(invoiceCount + 1).padStart(3, "0")}`
+  const number = `FAC-${year}-${String((count || 0) + 1).padStart(3, "0")}`
+
+  // Vérifier si le numéro existe déjà pour cet utilisateur
+  const { data: existing } = await supabase
+    .from("invoices")
+    .select("id")
+    .eq("number", number)
+    .eq("user_id", user.id)
+    .single()
+
+  // Si le numéro existe, ajouter un suffixe unique
+  const finalNumber = existing
+    ? `FAC-${year}-${String((count || 0) + 1).padStart(3, "0")}-${Date.now().toString().slice(-4)}`
+    : number
 
   const { data: created, error } = await supabase
     .from("invoices")
     .insert({
-      number,
+      number: finalNumber,
       status: data.status,
       client_id: data.clientId || null,
       client_name: data.clientName,

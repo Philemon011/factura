@@ -9,6 +9,7 @@ import { formatCFA, formatDate } from "@/lib/utils/formatters"
 import InvoiceStatusBadge from "@/components/invoices/InvoiceStatusBadge"
 import ConfirmModal from "@/components/ui/ConfirmModal"
 import { Invoice, InvoiceStatus } from "@/types"
+import { toast } from "sonner"
 
 const statusFilters: { label: string; value: InvoiceStatus | "all" }[] = [
   { label: "Toutes", value: "all" },
@@ -44,29 +45,31 @@ export default function InvoicesClient({
   }
 
   const handleConfirmDelete = async () => {
-    if (!targetId) return
-    setLoading(true)
-    try {
-      await deleteInvoice(targetId)
-      setInvoices((prev) => prev.filter((inv) => inv.id !== targetId))
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-      setTargetId(null)
-    }
+  if (!targetId) return
+  setLoading(true)
+  try {
+    await deleteInvoice(targetId)
+    setInvoices((prev) => prev.filter((inv) => inv.id !== targetId))
+    toast.success("Facture supprimée")
+  } catch (error) {
+    toast.error("Erreur lors de la suppression")
+  } finally {
+    setLoading(false)
+    setTargetId(null)
   }
+}
 
   const handleStatusChange = async (id: string, status: InvoiceStatus) => {
-    try {
-      await updateInvoiceStatus(id, status)
-      setInvoices((prev) =>
-        prev.map((inv) => inv.id === id ? { ...inv, status } : inv)
-      )
-    } catch (error) {
-      console.error(error)
-    }
+  try {
+    await updateInvoiceStatus(id, status)
+    setInvoices((prev) =>
+      prev.map((inv) => inv.id === id ? { ...inv, status } : inv)
+    )
+    toast.success("Statut mis à jour")
+  } catch (error) {
+    toast.error("Erreur lors de la mise à jour")
   }
+}
 
   return (
     <div className="min-h-full p-4 pt-16 dark:bg-zinc-950 sm:p-6 sm:pt-6 lg:p-8">

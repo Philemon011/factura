@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import "./globals.css"
+import { Toaster } from "sonner"
+
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -21,14 +23,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${poppins.variable} font-poppins antialiased`}>
+      <body
+        className={`${poppins.variable} font-poppins antialiased`}
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
+          storageKey="factura-theme"
           disableTransitionOnChange
         >
           {children}
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                fontFamily: "var(--font-poppins)",
+                fontSize: "13px",
+                borderRadius: "10px",
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

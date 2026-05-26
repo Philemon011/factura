@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Building2, Mail, Phone, MapPin, FileText, Upload, Save, Check } from "lucide-react"
 import { updateCompany } from "@/actions/company"
 import { Company } from "@/types"
+import { toast } from "sonner"
 
 export default function SettingsClient({
   initialCompany,
@@ -21,17 +22,18 @@ export default function SettingsClient({
   }
 
   const handleSave = async () => {
-    setLoading(true)
-    try {
-      await updateCompany(form)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2500)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+  setLoading(true)
+  try {
+    await updateCompany(form)
+    setSaved(true)
+    toast.success("Paramètres enregistrés")
+    setTimeout(() => setSaved(false), 2500)
+  } catch (error) {
+    toast.error("Erreur lors de la sauvegarde")
+  } finally {
+    setLoading(false)
   }
+}
 
   const inputClass = "w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-800 outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:focus:border-zinc-500"
   const labelClass = "mb-1.5 flex items-center gap-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400"

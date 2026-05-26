@@ -11,6 +11,7 @@ import { getClients } from "@/actions/clients"
 import { generateInvoiceNumber, formatCFA, formatDate } from "@/lib/utils/formatters"
 import LineItemRow from "@/components/invoices/LineItemRow"
 import InvoiceSummary from "@/components/invoices/InvoiceSummary"
+import { toast } from "sonner"
 
 function generateId() {
   return Math.random().toString(36).slice(2, 9)
@@ -224,40 +225,42 @@ export default function NewInvoicePage() {
   }
 
   const handleSubmit = async (status: "draft" | "sent") => {
-    if (!clientId) {
-      alert("Veuillez sélectionner un client")
-      return
-    }
-    if (items.some((item) => !item.name)) {
-      alert("Veuillez remplir le nom de tous les articles")
-      return
-    }
-    setLoading(true)
-    try {
-      await addInvoice(
-        {
-          status,
-          clientId,
-          clientName: selectedClient?.name || "",
-          issueDate,
-          dueDate,
-          items,
-          subtotal,
-          taxAmount,
-          discount: hasDiscount ? discount : 0,
-          total,
-          notes,
-        },
-        invoiceCount
-      )
-      router.push("/invoices")
-    } catch (error) {
-      console.error(error)
-      alert("Erreur lors de la création de la facture")
-    } finally {
-      setLoading(false)
-    }
+  if (!clientId) {
+    toast.error("Veuillez sélectionner un client")
+    return
   }
+  if (items.some((item) => !item.name)) {
+    toast.error("Veuillez remplir le nom de tous les articles")
+    return
+  }
+  setLoading(true)
+  try {
+    await addInvoice(
+      {
+        status,
+        clientId,
+        clientName: selectedClient?.name || "",
+        issueDate,
+        dueDate,
+        items,
+        subtotal,
+        taxAmount,
+        discount: hasDiscount ? discount : 0,
+        total,
+        notes,
+      },
+      invoiceCount
+    )
+    toast.success(
+      status === "draft" ? "Brouillon enregistré" : "Facture envoyée"
+    )
+    router.push("/invoices")
+  } catch (error) {
+    toast.error("Erreur lors de la création de la facture")
+  } finally {
+    setLoading(false)
+  }
+}
   return (
     <div className="flex h-screen flex-col bg-zinc-50 pt-14 dark:bg-zinc-950 sm:pt-0">
 

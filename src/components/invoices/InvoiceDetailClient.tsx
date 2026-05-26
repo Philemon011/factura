@@ -9,6 +9,7 @@ import { deleteInvoice, updateInvoiceStatus } from "@/actions/invoices"
 import { formatCFA, formatDate, getStatusLabel, getStatusClasses } from "@/lib/utils/formatters"
 import { Invoice, Client, InvoiceStatus } from "@/types"
 import ConfirmModal from "@/components/ui/ConfirmModal"
+import { toast } from "sonner"
 
 export default function InvoiceDetailClient({
   invoice: initialInvoice,
@@ -23,25 +24,26 @@ export default function InvoiceDetailClient({
   const [loading, setLoading] = useState(false)
 
   const handleConfirmDelete = async () => {
-    setLoading(true)
-    try {
-      await deleteInvoice(invoice.id)
-      router.push("/invoices")
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+  setLoading(true)
+  try {
+    await deleteInvoice(invoice.id)
+    toast.success("Facture supprimée")
+    router.push("/invoices")
+  } catch (error) {
+    toast.error("Erreur lors de la suppression")
+    setLoading(false)
   }
+}
 
   const handleStatusChange = async (status: InvoiceStatus) => {
-    try {
-      await updateInvoiceStatus(invoice.id, status)
-      setInvoice((prev) => ({ ...prev, status }))
-    } catch (error) {
-      console.error(error)
-    }
+  try {
+    await updateInvoiceStatus(invoice.id, status)
+    setInvoice((prev) => ({ ...prev, status }))
+    toast.success("Statut mis à jour")
+  } catch (error) {
+    toast.error("Erreur lors de la mise à jour")
   }
+}
 
   return (
     <div className="min-h-full bg-zinc-50 pt-14 dark:bg-zinc-950 sm:pt-0">
