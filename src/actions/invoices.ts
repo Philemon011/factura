@@ -5,9 +5,13 @@ import { Invoice, InvoiceStatus, LineItem } from "@/types"
 
 export async function getInvoices(): Promise<Invoice[]> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
   const { data, error } = await supabase
     .from("invoices")
     .select(`*, invoice_items(*)`)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
   if (error) throw new Error(error.message)
@@ -39,10 +43,14 @@ export async function getInvoices(): Promise<Invoice[]> {
 
 export async function getInvoice(id: string): Promise<Invoice | null> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
   const { data, error } = await supabase
     .from("invoices")
     .select(`*, invoice_items(*)`)
     .eq("id", id)
+    .eq("user_id", user.id)
     .single()
 
   if (error) return null
@@ -77,6 +85,8 @@ export async function addInvoice(
   invoiceCount: number
 ): Promise<Invoice> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
 
   const year = new Date().getFullYear()
   const number = `FAC-${year}-${String(invoiceCount + 1).padStart(3, "0")}`
@@ -95,6 +105,7 @@ export async function addInvoice(
       discount: data.discount,
       total: data.total,
       notes: data.notes,
+      user_id: user.id,
     })
     .select()
     .single()
@@ -130,30 +141,46 @@ export async function updateInvoiceStatus(
   status: InvoiceStatus
 ): Promise<void> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
+
   const { error } = await supabase
     .from("invoices")
     .update({ status })
     .eq("id", id)
+    .eq("user_id", user.id)
 
   if (error) throw new Error(error.message)
 }
 
 export async function deleteInvoice(id: string): Promise<void> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
+
   const { error } = await supabase
     .from("invoices")
     .delete()
     .eq("id", id)
+    .eq("user_id", user.id)
 
   if (error) throw new Error(error.message)
 }
 
 export async function getDashboardStats() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return {
+    totalInvoices: 0,
+    totalBilled: 0,
+    totalPaid: 0,
+    totalPending: 0,
+  }
 
   const { data, error } = await supabase
     .from("invoices")
     .select("status, total")
+    .eq("user_id", user.id)
 
   if (error) throw new Error(error.message)
 

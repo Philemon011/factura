@@ -5,9 +5,13 @@ import { Client } from "@/types"
 
 export async function getClients(): Promise<Client[]> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
   const { data, error } = await supabase
     .from("clients")
     .select("*")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
   if (error) throw new Error(error.message)
@@ -26,6 +30,9 @@ export async function addClient(
   data: Omit<Client, "id" | "createdAt">
 ): Promise<Client> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
+
   const { data: created, error } = await supabase
     .from("clients")
     .insert({
@@ -33,6 +40,7 @@ export async function addClient(
       email: data.email,
       phone: data.phone,
       address: data.address,
+      user_id: user.id,
     })
     .select()
     .single()
@@ -54,6 +62,9 @@ export async function updateClient(
   data: Partial<Client>
 ): Promise<void> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
+
   const { error } = await supabase
     .from("clients")
     .update({
@@ -63,16 +74,21 @@ export async function updateClient(
       address: data.address,
     })
     .eq("id", id)
+    .eq("user_id", user.id)
 
   if (error) throw new Error(error.message)
 }
 
 export async function deleteClient(id: string): Promise<void> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Non authentifié")
+
   const { error } = await supabase
     .from("clients")
     .delete()
     .eq("id", id)
+    .eq("user_id", user.id)
 
   if (error) throw new Error(error.message)
 }

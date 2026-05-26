@@ -21,18 +21,11 @@ export async function signUp(formData: {
   if (error) throw new Error(error.message)
 
   if (data.user) {
-    // Vérifier si une company existe déjà pour cet utilisateur
-    const { data: existing } = await supabase
-      .from("company")
-      .select("id")
-      .single()
-
-    if (!existing) {
-      await supabase.from("company").insert({
-        name: formData.companyName,
-        email: formData.email,
-      })
-    }
+    await supabase.from("company").insert({
+      name: formData.companyName,
+      email: formData.email,
+      user_id: data.user.id,
+    })
   }
 
   redirect("/dashboard")
