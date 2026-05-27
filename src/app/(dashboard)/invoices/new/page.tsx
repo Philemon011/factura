@@ -195,7 +195,9 @@ export default function NewInvoicePage() {
   const [hasDiscount, setHasDiscount] = useState(false)
   const [discount, setDiscount] = useState(0)
   const [notes, setNotes] = useState("")
-  const [showPreview, setShowPreview] = useState(true)
+  const [showPreview, setShowPreview] = useState(
+  typeof window !== "undefined" && window.innerWidth >= 1024
+)
 
   useEffect(() => {
     getClients().then(setClients)
