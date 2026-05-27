@@ -1,6 +1,6 @@
 "use server"
 
-import { transporter } from "@/lib/mailer"
+import { createTransporter } from "@/lib/mailer"
 import { createClient } from "@/lib/supabase/server"
 import { getInvoice } from "@/actions/invoices"
 import { getClients } from "@/actions/clients"
@@ -219,12 +219,14 @@ export async function sendInvoiceEmail(invoiceId: string): Promise<void> {
 </html>
   `
 
-  await transporter.sendMail({
-    from: `"${company.name}" <${process.env.SMTP_FROM}>`,
-    to: client.email,
-    subject: `Facture ${invoice.number} — ${company.name}`,
-    html,
-  })
+  const transporter = createTransporter()
+
+await transporter.sendMail({
+  from: `"${company.name}" <${process.env.SMTP_FROM}>`,
+  to: client.email,
+  subject: `Facture ${invoice.number} — ${company.name}`,
+  html,
+})
 
   // Mettre à jour le statut en "sent" si brouillon
   if (invoice.status === "draft") {
