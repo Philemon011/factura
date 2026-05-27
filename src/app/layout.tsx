@@ -30,9 +30,6 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem={false}
-          storageKey="factura-theme"
-          disableTransitionOnChange
         >
           {children}
           <Toaster
