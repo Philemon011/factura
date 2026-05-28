@@ -5,6 +5,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Mail, Lock, Eye, EyeOff, Building2, ArrowRight, CheckCircle } from "lucide-react"
 import { signUp } from "@/actions/auth"
+import GoogleButton from "@/components/auth/GoogleButton"
 
 const benefits = [
   "Gratuit pour démarrer — aucune carte requise",
@@ -219,23 +220,22 @@ export default function RegisterPage() {
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className={`h-1 flex-1 rounded-full transition-colors ${
-                        password.length >= i * 3
+                      className={`h-1 flex-1 rounded-full transition-colors ${password.length >= i * 3
                           ? password.length >= 8
                             ? "bg-green-500"
                             : password.length >= 6
-                            ? "bg-orange-400"
-                            : "bg-red-400"
+                              ? "bg-orange-400"
+                              : "bg-red-400"
                           : "bg-zinc-200 dark:bg-zinc-700"
-                      }`}
+                        }`}
                     />
                   ))}
                   <span className="text-[10px] text-zinc-400">
                     {password.length >= 8
                       ? "Fort"
                       : password.length >= 6
-                      ? "Moyen"
-                      : "Faible"}
+                        ? "Moyen"
+                        : "Faible"}
                   </span>
                 </div>
               )}
@@ -264,8 +264,8 @@ export default function RegisterPage() {
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
                   Création en cours...
                 </span>
@@ -285,6 +285,9 @@ export default function RegisterPage() {
               </a>
             </p>
           </form>
+
+          {/* Google */}
+          <GoogleButton label="S'inscrire avec Google" />
 
           {/* Divider */}
           <div className="my-6 flex items-center gap-3">
