@@ -140,7 +140,7 @@ export default function LoginPage() {
           {/* Titre */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              Bon retour 👋
+              Bon retour 
             </h1>
             <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
               Connectez-vous à votre espace Factura Africa
@@ -215,49 +215,50 @@ export default function LoginPage() {
               </motion.div>
             )}
 
-            {/* Bouton */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="group flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-all hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Connexion en cours...
-                </span>
-              ) : (
-                <>
-                  Se connecter
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </>
-              )}
-            </button>
-          </form>
+            {/* Bouton submit */}
+<button
+  type="submit"
+  disabled={loading}
+  className="group flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-all hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+>
+  {loading ? (
+    <span className="flex items-center gap-2">
+      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+      Connexion en cours...
+    </span>
+  ) : (
+    <>
+      Se connecter
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+    </>
+  )}
+</button>
 
-          {/* Google */}
-          <GoogleButton label="Continuer avec Google" />
+</form>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-            <span className="text-xs text-zinc-400">ou</span>
-            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-          </div>
+{/* Divider */}
+<div className="my-6 flex items-center gap-3">
+  <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+  <span className="text-xs text-zinc-400">ou</span>
+  <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+</div>
 
-          {/* Lien inscription */}
-          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-            Pas encore de compte ?{" "}
-            <Link
-              href="/register"
-              className="font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
-            >
-              Créer un compte gratuitement
-            </Link>
-          </p>
+{/* Google */}
+<GoogleButton label="Continuer avec Google" />
+
+{/* Lien inscription */}
+<p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+  Pas encore de compte ?{" "}
+  <Link
+    href="/register"
+    className="font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+  >
+    Créer un compte gratuitement
+  </Link>
+</p>
         </motion.div>
       </div>
     </div>

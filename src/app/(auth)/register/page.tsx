@@ -110,7 +110,7 @@ export default function RegisterPage() {
           {[
             { value: "500+", label: "Utilisateurs" },
             { value: "12k+", label: "Factures" },
-            { value: "5 🌍", label: "Pays" },
+            { value: "+5 🌍", label: "Pays" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-xl font-bold text-white">{stat.value}</p>
@@ -141,7 +141,7 @@ export default function RegisterPage() {
           {/* Titre */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              Créer un compte 🚀
+              Créer un compte 
             </h1>
             <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
               Gratuit pour démarrer — aucune carte bancaire requise
@@ -255,57 +255,61 @@ export default function RegisterPage() {
               </motion.div>
             )}
 
-            {/* Bouton */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="group flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-all hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Création en cours...
-                </span>
-              ) : (
-                <>
-                  Créer mon compte
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </>
-              )}
-            </button>
+            {/* Bouton submit */}
+<button
+  type="submit"
+  disabled={loading}
+  className="group flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-all hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+>
+  {loading ? (
+    <span className="flex items-center gap-2">
+      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+      Création en cours...
+    </span>
+  ) : (
+    <>
+      Créer mon compte
+      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+    </>
+  )}
+</button>
+</form>
 
-            {/* CGU */}
-            <p className="text-center text-xs text-zinc-400 dark:text-zinc-600">
-              En créant un compte vous acceptez nos{" "}
-              <a href="#" className="text-zinc-600 hover:underline dark:text-zinc-400">
-                conditions d'utilisation
-              </a>
-            </p>
-          </form>
+{/* CGU */}
+<p className="mt-4 text-center text-xs text-zinc-400 dark:text-zinc-500">
+  En créant un compte, vous acceptez nos{" "}
+  <Link href="/terms" className="underline hover:text-zinc-600 dark:hover:text-zinc-300">
+    Conditions d'utilisation
+  </Link>{" "}
+  et notre{" "}
+  <Link href="/privacy" className="underline hover:text-zinc-600 dark:hover:text-zinc-300">
+    Politique de confidentialité
+  </Link>
+</p>
 
-          {/* Google */}
-          <GoogleButton label="S'inscrire avec Google" />
+{/* Divider */}
+<div className="my-6 flex items-center gap-3">
+  <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+  <span className="text-xs text-zinc-400">ou</span>
+  <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
+</div>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-            <span className="text-xs text-zinc-400">ou</span>
-            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-          </div>
+{/* Google */}
+<GoogleButton label="Continuer avec Google" />
 
-          {/* Lien connexion */}
-          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-            Déjà un compte ?{" "}
-            <Link
-              href="/login"
-              className="font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
-            >
-              Se connecter
-            </Link>
-          </p>
+{/* Lien connexion */}
+<p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
+  Déjà un compte ?{" "}
+  <Link
+    href="/login"
+    className="font-semibold text-zinc-900 hover:underline dark:text-zinc-100"
+  >
+    Se connecter
+  </Link>
+</p>
         </motion.div>
       </div>
     </div>
